@@ -145,6 +145,7 @@ def process_item(path: PurePosixPath) -> PurePosixPath:
             logger.info(f'''Would rename: '{path}') 
                         to '{new_path}'
                         ''')
+            return path
         else:
             try:
                 fs.mv(urllib.quote(str(path)), urllib.quote(str(new_path)), recursive=True)

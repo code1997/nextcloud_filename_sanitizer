@@ -26,6 +26,8 @@ It tries to be safe by default. Conflicts are resolved by appending '_1' to the 
         $ python nextcloud_filename_sanitizer.py -d '/path/to/directory' -o -l 'log.txt'
 
 ## Attributes
+These Attributes must be changed in the script itself (nextcloud_filename_sanitizer.py)
+
     WEBDAV_ADDRESS (str): The address of the Nextcloud WebDAV server.
     WEBDAV_USERNAME (str): The username to authenticate with.
 

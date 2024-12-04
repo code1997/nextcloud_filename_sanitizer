@@ -14,7 +14,7 @@ occ files:scan would have to be called afterwards to make Nextcloud aware of the
 It tries to be safe by default. Conflicts are resolved by appending '_1' to the filename, unless --overwrite is set.
 
 ## Installation
-    pip install webdav4
+    pip install webdav4[fsspec]
     pip install keyring
 
 ## Usage

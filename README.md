@@ -25,7 +25,9 @@ It tries to be safe by default. Conflicts are resolved by appending '_1' to the 
     - Run the script and overwrite existing files on conflict (USE WITH CAUTION)
         $ python nextcloud_filename_sanitizer.py -d '/path/to/directory' -o -l 'log.txt'
 
-## Attributes
+## Environment Variables
+Set following variables however you like. (e.g. with .env file in VSCode)
+
     WEBDAV_ADDRESS (str): The address of the Nextcloud WebDAV server.
     WEBDAV_USERNAME (str): The username to authenticate with.
 

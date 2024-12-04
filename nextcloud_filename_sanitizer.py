@@ -40,6 +40,7 @@ Dependencies:
     keyring: https://pypi.org/project/keyring/
 """
 
+import os
 import re
 import argparse
 import logging
@@ -58,9 +59,9 @@ __maintainer__ = "Manuel J. Mehltretter"
 __email__ = "status@mehltretters.com"
 __status__ = "Production"
 
-# Global constants - change these to match your setup
-WEBDAV_ADDRESS = 'https://cloud.example.com/remote.php/dav/files/username/'
-WEBDAV_USERNAME = 'username'
+# Reading environment variables
+WEBDAV_ADDRESS = os.environ["WEBDAV_ADDRESS"]
+WEBDAV_USERNAME = os.environ["WEBDAV_USERNAME"]
 
 ### No changes needed below this line ###
 

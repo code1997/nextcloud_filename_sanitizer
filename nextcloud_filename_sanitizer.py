@@ -219,7 +219,7 @@ if __name__ == '__main__':
     parser.add_argument('-l', '--logfile', type=str, required=False)
     parser.add_argument('-s', '--safe-mode', action='store_true')
     parser.add_argument('-r', '--replace-with', type=str)
-    parser.add_argument('-d', '--directory', type=str, required=True)
+    parser.add_argument('-d', '--directory', type=str)
     parser.add_argument('-o', '--overwrite', action='store_true')
     args = parser.parse_args()
 
@@ -238,6 +238,9 @@ if __name__ == '__main__':
         replace_with = args.replace_with
     if args.overwrite:
         overwrite = True
+    if not args.directory:
+        logger.info('No directory provided. Ending script...')
+        exit(0)
     
     # Do stuff
     fs = WebdavFileSystem(WEBDAV_ADDRESS, 

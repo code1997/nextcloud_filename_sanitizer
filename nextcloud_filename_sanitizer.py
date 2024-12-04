@@ -40,13 +40,13 @@ Dependencies:
     keyring: https://pypi.org/project/keyring/
 """
 
-import os
 import re
 import argparse
 import logging
 import getpass
 import urllib.parse as urllib
 import keyring
+from pathlib import PurePosixPath
 from webdav4.fsspec import WebdavFileSystem, ResourceAlreadyExists
 
 __author__ = "Manuel J. Mehltretter"
@@ -89,7 +89,7 @@ def init():
         exit(1)
 
 
-def sanitize_filename(path: str) -> str:
+def sanitize_filename(path: PurePosixPath) -> PurePosixPath:
     """Sanitize a filename to comply with Windows naming conventions.
 
     This function first replaces or removes invalid characters.
@@ -98,12 +98,12 @@ def sanitize_filename(path: str) -> str:
 
     Parameters
     ----------
-    path : str
+    path : PurePosixPath
         The path to the file or folder to be sanitized.
         
     Returns
     -------
-    str
+    PurePosixPath
         The sanitized path.
     """
 
@@ -112,19 +112,15 @@ def sanitize_filename(path: str) -> str:
                           'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9']
     invalid_characters = r'[\\/:*?"<>|]'
 
-    filename, ext = os.path.splitext(os.path.basename(path))
     # Replace invalid characters
-    filename = re.sub(invalid_characters, replace_with, filename)
-    # Remove trailing spaces or periods.
-    filename = filename.rstrip('. ')
+    path = path.with_name(re.sub(invalid_characters, replace_with, path.name))
     # Check for reserved names on Windows
-    if filename.upper() in windows_reserved_names:
-        filename += '_reserved'
-    filename += ext
-    return os.path.join(os.path.dirname(path), filename)
+    if path.name.upper() in windows_reserved_names:
+        path = path.with_name('_reserved')
+    return path
 
 
-def process_item(path: str) -> str:
+def process_item(path: PurePosixPath) -> PurePosixPath:
     """Process a single file or folder.
 
     Calls the sanitize_filename function. If the filename is changed, the file is renamed.
@@ -133,12 +129,12 @@ def process_item(path: str) -> str:
     
     Parameters
     ----------
-    path : str
+    path : PurePosixPath
         The path to the file or folder to be processed.
 
     Returns
     -------
-    str
+    PurePosixPath
         The new path of the file or folder. This is important if the item is a folder,
         because the path of its content will change if the folder is renamed.
     """
@@ -151,7 +147,7 @@ def process_item(path: str) -> str:
                         ''')
         else:
             try:
-                fs.mv(urllib.quote(path), urllib.quote(new_path), recursive=True)
+                fs.mv(urllib.quote(str(path)), urllib.quote(str(new_path)), recursive=True)
                 logger.info(f'''Renamed: '{path}'
                             to '{new_path}'
                             ''')
@@ -160,13 +156,13 @@ def process_item(path: str) -> str:
                     logger.warning(f'''Conflict: '{new_path}' already exists. 
                                     Appended '_1' to the filename.
                                     ''')
-                    new_path += '_1'
-                    fs.mv(urllib.quote(path), urllib.quote(f'{new_path}_1'), recursive=True)
+                    new_path = new_path.with_name(new_path.name + '_1')
+                    fs.mv(urllib.quote(str(path)), urllib.quote(f'{new_path}_1'), recursive=True)
                 else:
                     logger.warning(f'''Conflict: Overwriting {new_path}
                     ''')
-                    fs.rm(urllib.quote(new_path))
-                    fs.mv(urllib.quote(path), urllib.quote(new_path), recursive=True)
+                    fs.rm(urllib.quote(str(new_path)))
+                    fs.mv(urllib.quote(str(path)), urllib.quote(str(new_path)), recursive=True)
             except Exception as e:
                 logger.error(f'''Could not rename '{path}': 
                              {e}''')
@@ -176,25 +172,28 @@ def process_item(path: str) -> str:
     return new_path
 
 
-def list_recursive(path: str):
-    """List all files and folders in a directory recursively.
+def process_recursive(path: PurePosixPath):
+    """Process all files and folders in a directory recursively.
     
     webdav4 does not support recursive listing. 
-    This function recursively traverses the directory tree and calls process_item on each item.
+    webdav4 would support recursive listing with fs.glob("/**"), but can't be used here.
+    The reason is, that the folder name must be renamed, before we traverse the tree further.
+    Therefore, this function recursively traverses the directory tree and calls process_item on each item.
     
     Parameters
     ----------
-    path : str
+    path : PurePosixPath
         The path to the directory to be traversed.
     """
 
     try:
-        for item in fs.ls(urllib.quote(path), detail=True):
+        for item in fs.ls(urllib.quote(str(path)), detail=True):
+            item_path = PurePosixPath(item['name'])
             if item['type'] == 'file':
-                process_item(item['name'])
+                process_item(item_path)
             elif item['type'] == 'directory':
-                new_folder_name = process_item(item['name'])
-                list_recursive(new_folder_name)
+                new_folder_name = process_item(item_path)
+                process_recursive(new_folder_name)
     except Exception as e:
         logger.error(f'''Could not list '{path}' 
                      {e}''')
@@ -242,5 +241,6 @@ if __name__ == '__main__':
     # Do stuff
     fs = WebdavFileSystem(WEBDAV_ADDRESS, 
                           auth=(WEBDAV_USERNAME, keyring.get_password(keyring_system, WEBDAV_USERNAME)))
-    logger.info(f'Starting to sanitize filenames in {args.directory}')
-    list_recursive(args.directory)
+    path = PurePosixPath(args.directory.strip())
+    logger.info(f'Starting to sanitize filenames in {str(path)}')
+    process_recursive(path)

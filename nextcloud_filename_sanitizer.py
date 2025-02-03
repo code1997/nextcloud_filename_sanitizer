@@ -23,6 +23,7 @@ Examples:
         $ python nextcloud_filename_sanitizer.py -d '/path/to/directory' -o -l 'log.txt'
 
 Attributes:
+    # Do not forget to change these global constants to match your setup.
     WEBDAV_ADDRESS (str): The address of the Nextcloud WebDAV server.
     WEBDAV_USERNAME (str): The username to authenticate with.
 
@@ -38,6 +39,7 @@ Parameters:
 Dependencies:
     webdav4: https://pypi.org/project/webdav4/
     keyring: https://pypi.org/project/keyring/
+    pathlib: https://pypi.org/project/pathlib/
 """
 
 import re
@@ -53,7 +55,7 @@ __author__ = "Manuel J. Mehltretter"
 __copyright__ = "Copyright 2024, Manuel J. Mehltretter"
 __credits__ = "Manuel J. Mehltretter"
 __license__ = "MIT"
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 __maintainer__ = "Manuel J. Mehltretter"
 __email__ = "status@mehltretters.com"
 __status__ = "Production"

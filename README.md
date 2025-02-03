@@ -14,19 +14,24 @@ occ files:scan would have to be called afterwards to make Nextcloud aware of the
 It tries to be safe by default. Conflicts are resolved by appending '_1' to the filename, unless --overwrite is set.
 
 ## Installation
-    pip install webdav4[fsspec]
-    pip install keyring
-
+    pip install webdav4[fsspec] keyring pathlib
+    
 ## Usage
+    - Change the global constants WEBDAV_ADDRESS and WEBDAV_USERNAME directly in the script
+    
     - Initialize the script in your environment (asks for password interactively)
-        $ python nextcloud_filename_sanitizer.py -i
+    $ python nextcloud_filename_sanitizer.py -i
+    
     - Run the script in safe mode on a directory and log to a file
-        $ python nextcloud_filename_sanitizer.py -s -d '/path/to/directory' -l 'log.txt'
+    $ python nextcloud_filename_sanitizer.py -s -d '/path/to/directory' -l 'log.txt'
+
     - Run the script and overwrite existing files on conflict (USE WITH CAUTION)
-        $ python nextcloud_filename_sanitizer.py -d '/path/to/directory' -o -l 'log.txt'
+    $ python nextcloud_filename_sanitizer.py -d '/path/to/directory' -o -l 'log.txt'
 
 ## Attributes
-These Attributes must be changed in the script itself (nextcloud_filename_sanitizer.py)
+The following global constants must be changed in the script itself (nextcloud_filename_sanitizer.py)
+The usage of hard coded variables is intentional, as these are used for the construction of the keyring name.
+This design also makes running the script as a cron job or scheduled task easier.
 
     WEBDAV_ADDRESS (str): The address of the Nextcloud WebDAV server.
     WEBDAV_USERNAME (str): The username to authenticate with.
@@ -41,9 +46,10 @@ These Attributes must be changed in the script itself (nextcloud_filename_saniti
     -o, --overwrite: Overwrite existing files on conflict.
 
 ## Dependencies
-    webdav4: https://pypi.org/project/webdav4/
-    keyring: https://pypi.org/project/keyring/
+- webdav4: https://pypi.org/project/webdav4/
+- keyring: https://pypi.org/project/keyring/
+- pathlib: https://pypi.org/project/pathlib/
 
 ## Contribute
-    - This could be built as a package and published on pip for easier installation
-    - Convert to PHP and make a Nextcloud Plugin
+- This could be built as a package and published on pip for easier installation
+- Convert to PHP and make a Nextcloud Plugin

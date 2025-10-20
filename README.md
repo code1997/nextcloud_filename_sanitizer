@@ -1,3 +1,6 @@
+# Update, funciton now included by occ
+https://docs.nextcloud.com/server/latest/admin_manual/occ_command.html#occ-files-sanitize-filenames
+
 # nextcloud_filename_sanitizer
 This script sanitizes filenames in a Nextcloud instance to comply with Windows naming conventions.
 
